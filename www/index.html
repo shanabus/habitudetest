@@ -16,7 +16,8 @@
 		<script src="js/jquery.mobile.1.2.min.js"></script>
         <script src="js/cookies.js"></script>
         <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-
+		<!--<script src="PushNotification.js"></script> -->
+        
         <script>		
 			var API_BASE_URL = "api/v1/";	
 			var USER_ID = getUserIdCookie();
@@ -24,7 +25,9 @@
 			var NEW_HABIT_ID = 0;
 			var CURRENT_HABIT_ID = getCurrentHabitIdCookie();
 			var DEBUG = true;
-							
+			
+			var pushNotification;		
+			
 			$(document).ready(function() {			
 				
 				if (USER_ID > 0) {
@@ -48,6 +51,23 @@
 				  };				  
 				});
 			});
+			
+			document.addEventListener("deviceready", onDeviceReady, true);
+			
+			function onDeviceReady()
+			{
+				alert('Phonegap ready');
+				//pushNotification = window.plugins.pushNotification;
+			}
+			
+			function init() {
+			
+				document.addEventListener("deviceready", deviceInfo, false);
+			}
+			
+			var deviceInfo = function() {
+				alert('PhoneGap ready from init');
+			};
 			
 			function logOut() {
 				USER_ID = 0;
