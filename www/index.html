@@ -56,19 +56,26 @@
 			
 			function onDeviceReady()
 			{
-				alert('Phonegap ready');
+				showAlert('Phonegap ready');
 				//pushNotification = window.plugins.pushNotification;
 			}
 			
-			function init() {
-			
-				document.addEventListener("deviceready", deviceInfo, false);
+			// alert dialog dismissed
+			function alertDismissed() {
+				navigator.notification.vibrate(2000);
 			}
-			
-			var deviceInfo = function() {
-				alert('PhoneGap ready from init');
-			};
-			
+		
+			// Show a custom alertDismissed
+			//
+			function showAlert() {
+				navigator.notification.alert(
+					'You are the winner!',  // message
+					alertDismissed,         // callback
+					'Game Over',            // title
+					'Done'                  // buttonName
+				);
+			}
+						
 			function logOut() {
 				USER_ID = 0;
 				setUserIdCookie(0);
