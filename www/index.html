@@ -19,12 +19,12 @@
 		<!--<script src="PushNotification.js"></script> -->
         
         <script>		
-			var API_BASE_URL = "api/v1/";	
+			var API_BASE_URL = "http://grappsmobile.com/habitude/api/v1/";	
 			var USER_ID = getUserIdCookie();
 			var NEW_CATEGORY_ID = getNewCategoryIdCookie();
 			var NEW_HABIT_ID = 0;
 			var CURRENT_HABIT_ID = getCurrentHabitIdCookie();
-			var DEBUG = true;
+			var DEBUG = false;
 			
 			var pushNotification;		
 			
@@ -56,7 +56,7 @@
 			
 			function onDeviceReady()
 			{
-				showAlert('Phonegap ready');
+				//showAlert('Phonegap ready');
 				//pushNotification = window.plugins.pushNotification;
 			}
 			
@@ -97,8 +97,11 @@
     <body>
     	<!-- LOG IN PAGE -->
     	<div data-role="page" id="pageLogin" data-theme="a">
-        	<script type="text/javascript">						
-				$("#pageLogin").bind('pageinit', function() {
+        	<script type="text/javascript">					
+				var badPasswordCount = 0;	
+				
+				$("#pageLogin").bind('pageinit', function() {					
+				
 					if (DEBUG) console.log("pageLogin pageinit");
 										
 					$("#btnLogin").off('click').on('click', function() {
@@ -116,7 +119,7 @@
 							  dataType: "json",
 							  success: function(data) {
 
-								if (data.Success != "false") {
+								if (data.Success) {
 									USER_ID = parseInt(data.Items[0].userId);
 									setUserIdCookie(USER_ID);			
 									$.mobile.changePage("#pageMyHabits", { transition: "slideup"});							
@@ -124,13 +127,26 @@
 									//_gaq.push(['_setCustomVar', 2, 'Player Name', name, 3 ]);
 									//_gaq.push(['_trackEvent', 'Game', 'Game Joined', GAME_ID]);
 								} else {
-									alert("there was a problem joining this game");
+									badCreds();
 								}
 							  }
 							});						
 						}
 					});
 				});
+				
+				function badCreds() {
+					badPasswordCount++;
+					navigator.notification.vibrate(1000);
+					if (badPasswordCount >= 3) {
+						navigator.notification.alert(
+							'Password Max',  // message
+							alertDismissed,         // callback
+							'Too many tries',            // title
+							'Exit'                  // buttonName
+						);
+					}
+				}
 			</script>
         
 			<!-- <div data-role="header">
