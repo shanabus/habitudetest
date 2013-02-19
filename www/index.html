@@ -327,7 +327,7 @@
 		<!-- MY HABIT DETAILS PAGE -->
         <div data-role="page" id="pageMyHabitDetails" data-theme="a" data-cache="never">
 			<script type="text/javascript">	
-                $("#pageMyHabitDetails").bind('pageshow', function() {
+                $("#pageMyHabitDetails").bind('pagebeforeshow', function() {
                     if (DEBUG) console.log("pageMyHabitDetails pageinit");
                     if (DEBUG) console.log("current habit id = " + CURRENT_HABIT_ID);
 										
@@ -349,27 +349,7 @@
                           }
                         });						
 						
-						$.ajax({
-                          type: "POST",
-                          url: API_BASE_URL + 'habits.php?method=user_habit_log',
-                          data: {
-                              userId: USER_ID,
-							  habitId: CURRENT_HABIT_ID
-                              },
-                          dataType: "json",
-                          success: function(data) {
-        
-                            if (DEBUG) console.debug(data);
-							if (data.Success) {
-								var steps = 20;
-								var centerX = 91;
-								var centerY = 91;
-								var radius = cWidth / 2 + 1;
-								
-								plotCircle(steps, centerX, centerY, radius, data.Items);								
-							}
-                          }
-                        });	
+						getHabitProgress();
                     }
 					
 					$(".btnDeleteHabit").off('click').on('click', function() {
@@ -385,6 +365,9 @@
         
                             if (DEBUG) console.debug(data);
 							if (data.Success) {
+							
+								$("#divHabitTitle").html("");
+								$(".day").remove();
 								$.mobile.changePage("#pageMyHabits");
 							}
                           }
@@ -422,6 +405,30 @@
 					
 					$(".btnLogOut").off('click').on('click', logOut);
                 });          
+				
+				function getHabitProgress() {
+					$.ajax({
+					  type: "POST",
+					  url: API_BASE_URL + 'habits.php?method=user_habit_log',
+					  data: {
+						  userId: USER_ID,
+						  habitId: CURRENT_HABIT_ID
+						  },
+					  dataType: "json",
+					  success: function(data) {
+	
+						if (DEBUG) console.debug(data);
+						if (data.Success) {
+							var steps = 20;
+							var centerX = 91;
+							var centerY = 91;
+							var radius = cWidth / 2 + 1;
+							
+							plotCircle(steps, centerX, centerY, radius, data.Items);								
+						}
+					  }
+					});	
+				}
 				
 				function getDateCreated() {
 					var date = new Date();
@@ -647,7 +654,9 @@
 		<!-- HABIT CREATED DIALOG -->
         <div data-role="page" id="pageHabitCreated">
           <div data-role="header">
-            <h1>Habit Created</h1>
+			<div class="center" style="width: 253px;">
+				<img src="images/Habitude_title.png" align="center" class="center" style="width: 253px;" />
+			</div>
           </div>    
           <div data-role="content" id="divHabitCreateResult"></div>    
           <a href="#pageMyHabitDetails" data-role="button" data-icon="arrow-r">Continue</button>
