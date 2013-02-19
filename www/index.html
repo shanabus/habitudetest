@@ -349,7 +349,27 @@
                           }
                         });						
 						
-						getHabitProgress();
+						$.ajax({
+                          type: "POST",
+                          url: API_BASE_URL + 'habits.php?method=user_habit_log',
+                          data: {
+                              userId: USER_ID,
+							  habitId: CURRENT_HABIT_ID
+                              },
+                          dataType: "json",
+                          success: function(data) {
+        
+                            if (DEBUG) console.debug(data);
+							if (data.Success) {
+								var steps = 20;
+								var centerX = 91;
+								var centerY = 91;
+								var radius = cWidth / 2 + 1;
+								
+								plotCircle(steps, centerX, centerY, radius, data.Items);								
+							}
+                          }
+                        });	
                     }
 					
 					$(".btnDeleteHabit").off('click').on('click', function() {
@@ -365,9 +385,6 @@
         
                             if (DEBUG) console.debug(data);
 							if (data.Success) {
-							
-								$("#divHabitTitle").html("");
-								$(".day").remove();
 								$.mobile.changePage("#pageMyHabits");
 							}
                           }
@@ -406,30 +423,6 @@
 					$(".btnLogOut").off('click').on('click', logOut);
                 });          
 				
-				function getHabitProgress() {
-					$.ajax({
-					  type: "POST",
-					  url: API_BASE_URL + 'habits.php?method=user_habit_log',
-					  data: {
-						  userId: USER_ID,
-						  habitId: CURRENT_HABIT_ID
-						  },
-					  dataType: "json",
-					  success: function(data) {
-	
-						if (DEBUG) console.debug(data);
-						if (data.Success) {
-							var steps = 20;
-							var centerX = 91;
-							var centerY = 91;
-							var radius = cWidth / 2 + 1;
-							
-							plotCircle(steps, centerX, centerY, radius, data.Items);								
-						}
-					  }
-					});	
-				}
-				
 				function getDateCreated() {
 					var date = new Date();
 					date = date.getUTCFullYear() + '-' + ('00' + (date.getUTCMonth()+1)).slice(-2) + '-' + date.getUTCDate() + ' ' + ('00' + date.getUTCHours()).slice(-2) + ':' + ('00' + date.getUTCMinutes()).slice(-2) + ':' + ('00' + date.getUTCSeconds()).slice(-2);
@@ -467,7 +460,7 @@
 							$("#day" + i).css("background-color", "#66CD00");														
 							if (currentDay == (getDayOfYear() - 1)) {
 								$("#divDidIt").off('click');
-								$("#divDidIt").html("<br />You<br />did it!");
+								$("#divDidIt").html("<br />You<br />did it?");
 								$("#divDidIt").addClass("didItToday");
 							}
 						}
