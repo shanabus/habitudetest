@@ -32,17 +32,15 @@
 				
 				if (USER_ID > 0) {
 					if (DEBUG) console.log("Users was found eating cookies");
-					if (DEBUG) console.log("Current Habit Id = " + CURRENT_HABIT_ID);
 					
 					USER_ID = parseInt(getUserIdCookie());
-				
-					if (getCurrentHabitIdCookie() > 0)
-					{
-						CURRENT_HABIT_ID = getCurrentHabitIdCookie();
-						$.mobile.changePage("#pageMyHabitDetails");
-					} else {
+
+					//if (CURRENT_HABIT_ID > 0)
+//					{
+//						$.mobile.changePage("#pageMyHabitDetails");
+//					} else {
 						$.mobile.changePage("#pageMyHabits");
-					}					
+					//}					
 				}
 				
 				$('div').live('pagechange', function(event, ui){
@@ -123,16 +121,8 @@
 
 								if (data.Success) {
 									USER_ID = parseInt(data.Items[0].userId);
-									setUserIdCookie(USER_ID);
-									
-									if (DEBUG) console.log("and habitId was " + data.Items[0].habitId);
-									if (data.Items[0].habitId > 0) {
-										CURRENT_HABIT_ID = data.Items[0].habitId;
-										setCurrentHabitIdCookie(CURRENT_HABIT_ID);
-										$.mobile.changePage("#pageMyHabitDetails");							
-									} else {
-										$.mobile.changePage("#pageMyHabits");							
-									}
+									setUserIdCookie(USER_ID);			
+									$.mobile.changePage("#pageMyHabits");							
 									//_gaq.push(['_setCustomVar', 1, 'Game Code', gameCode, 3 ]);
 									//_gaq.push(['_setCustomVar', 2, 'Player Name', name, 3 ]);
 									//_gaq.push(['_trackEvent', 'Game', 'Game Joined', GAME_ID]);
@@ -252,7 +242,7 @@
 		<!-- MY HABITS PAGE -->
 		<div data-role="page" id="pageMyHabits" data-theme="c" data-cache="never">
 			<script type="text/javascript">						
-                $("#pageMyHabits").bind('pagebeforeshow', function() {
+                $("#pageMyHabits").bind('pageshow', function() {
                     if (DEBUG) console.log("pageMyHabits pageinit");
                     if (DEBUG) console.log("user id = " + USER_ID);
 					
@@ -272,28 +262,21 @@
                               },
                           dataType: "json",
                           success: function(data) {
-        					if (data.Success && data.Items.length > 0) {
-								CURRENT_HABIT_ID = data.Items[0].habitId;
+        
+                            var habitsHtml ='';
+                            for(var a = 0; a < data.Items.length; a++) {
+                                //habitsHtml += '<a class="btnHabit btn" data-role="button" data-theme="c" data-habit-id="' + data.Items[a].habitId + '">';
+                                //habitsHtml +=  data.Items[a].habitName + ' <br /><span class="categoryName">' + data.Items[a].categoryName + '</span></a>';
+                                habitsHtml += '<a class="btnHabit" data-habit-id="' + data.Items[a].habitId + '"><div class="habitName">';
+                                habitsHtml +=  data.Items[a].habitName + '</div><div class="categoryName">' + data.Items[a].categoryName + '</div></a>';
+                            }
+                            $("#divMyHabits").append(habitsHtml);
+                            //$("#divMyHabits").trigger( "create" );
+                            $("#pageMyHabits .btnHabit").off('click').on('click', function(e) {
+								CURRENT_HABIT_ID = $(e.currentTarget).data("habit-id");
 								setCurrentHabitIdCookie(CURRENT_HABIT_ID);
-								//var habitsHtml ='';
-								//for(var a = 0; a < data.Items.length; a++) {
-									////habitsHtml += '<a class="btnHabit btn" data-role="button" data-theme="c" data-habit-id="' + data.Items[a].habitId + '">';
-									////habitsHtml +=  data.Items[a].habitName + ' <br /><span class="categoryName">' + data.Items[a].categoryName + '</span></a>';
-									//habitsHtml += '<a class="btnHabit" data-habit-id="' + data.Items[a].habitId + '"><div class="habitName">';
-									//habitsHtml +=  data.Items[a].habitName + '</div><div class="categoryName">' + data.Items[a].categoryName + '</div></a>';
-								//}
-								//$("#divMyHabits").append(habitsHtml);
-								////$("#divMyHabits").trigger( "create" );
-								//$("#pageMyHabits .btnHabit").off('click').on('click', function(e) {
-								//	CURRENT_HABIT_ID = $(e.currentTarget).data("habit-id");
-								//	setCurrentHabitIdCookie(CURRENT_HABIT_ID);
-									$.mobile.changePage("#pageMyHabitDetails");
-								//});
-							}
-							else
-							{
-								$("#divMyHabits").html("<p>Start by choosing a New Habit!</p>");
-							}
+								$.mobile.changePage("#pageMyHabitDetails");
+							});
                           }
                         });						
                     }
@@ -419,8 +402,6 @@
 							});						
 						}
 					});
-					
-					$(".btnLogOut").off('click').on('click', logOut);
                 });          
 				
 				function getDateCreated() {
@@ -488,8 +469,7 @@
             </div><!-- /content -->
         
             <div data-role="footer" data-position="fixed" data-theme="c">
-                <!--<a data-rel="back" data-theme="b" data-role="button" data-mini="true" data-icon="arrow-l">Back</a>-->
-                <a href="#" data-role="button" data-icon="alert" class="btnLogOut">Log Out</a>
+                <a data-rel="back" data-theme="b" data-role="button" data-mini="true" data-icon="arrow-l">Back</a>
                 <a class="pull-right btnDeleteHabit" data-theme="a" data-role="button" data-mini="true" data-icon="delete">Delete</a>
             </div><!-- /footer -->
         
@@ -610,15 +590,12 @@
 							{
 								$("#divHabitCreateResult").html("There was a problem creating this habit...");
 							}
-                            //$("#dialogHabitCreated").dialog();
-							//$("#lnkNewHabitDialog").click();
+                            $("#dialogHabitCreated").dialog();
+							$("#lnkNewHabitDialog").click();
 							
-							CURRENT_HABIT_ID = NEW_HABIT_ID;
-							setCurrentHabitIdCookie(CURRENT_HABIT_ID);
-							$.mobile.changePage("#pageHabitCreated");
-							//$('#dialogHabitCreated').off('pagehide').on('pagehide',function(event) {
-							//	$.mobile.changePage("#pageMyHabitDetails");
-							//});
+							$('#dialogHabitCreated').off('pagehide').on('pagehide',function(event) {
+								$.mobile.changePage("#pageMyHabits");
+							});
                           }
                         });		
 					}
@@ -635,7 +612,7 @@
                 <div data-swatch="b" class="ui-li ui-li-divider ui-btn ui-bar-b ui-corner-top ui-corner-bottom ui-btn-up-undefined speech">Choose a Habit</div>
                 <div id="divHabits" data-role="fieldcontain"></div>
                 
-                <!-- <a id='lnkNewHabitDialog' href="#dialogHabitCreated" data-rel="dialog" data-transition="pop" style='display:none;'></a>                       -->
+                <a id='lnkNewHabitDialog' href="#dialogHabitCreated" data-rel="dialog" data-transition="pop" style='display:none;'></a>                       
             </div><!-- /content -->
         
         	<div data-role="footer" data-position="fixed" data-theme="c">
@@ -645,12 +622,12 @@
         </div><!-- /page -->
 
 		<!-- HABIT CREATED DIALOG -->
-        <div data-role="page" id="pageHabitCreated">
+        <div data-role="page" id="dialogHabitCreated">
           <div data-role="header">
-            <h1>Habit Created</h1>
+            <h1>Create Habit</h1>
           </div>    
-          <div data-role="content" id="divHabitCreateResult"></div>    
-          <a href="#pageMyHabitDetails" data-role="button" data-icon="arrow-r">Continue</button>
+          <div data-role="content" id="divHabitCreateResult">
+          </div>    
         </div>
 
         <div data-role="page" data-rel="dialog" id="notImplemented">
